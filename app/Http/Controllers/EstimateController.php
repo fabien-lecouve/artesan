@@ -12,6 +12,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Stmt\TryCatch;
 
 class EstimateController extends Controller
 {
@@ -121,8 +123,33 @@ class EstimateController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Estimate $estimate)
+    public function destroy(Estimate $estimate): RedirectResponse
     {
-        //
+        try {
+            DB::beginTransaction();
+
+            foreach($estimate->locationOfWorks as $location){
+                foreach($location->operations as $operation){
+                    $operation->delete();
+                }
+                foreach($location->descriptions as $description){
+                    $description->delete();
+                }
+                $location->delete();
+            }
+            $estimate->delete();
+
+            DB::commit();
+
+            $key = 'success';
+            $message = 'Le devis '.$estimate->reference.' a bien été supprimé';
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            $key = 'failed';
+            $message = $th->getMessage();
+        }
+        return redirect()->route('estimate.index')->with($key, $message);
     }
 }

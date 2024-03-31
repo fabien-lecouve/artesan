@@ -62,7 +62,7 @@ class ProfileController extends Controller
         if ($request->file('artisan_logo_path')) {
             $imagePath = $request->file('artisan_logo_path')->storeAs(
                 'images', 
-                Auth::id() . '.' . $request->file('artisan_logo_path')->getClientOriginalExtension(),
+                Auth::id() . '.artisan_logo' . $request->file('artisan_logo_path')->getClientOriginalExtension(),
                 'public');
 
             $profile->artisan_logo_path = $imagePath;
@@ -70,7 +70,7 @@ class ProfileController extends Controller
         if ($request->file('qualifelec_logo_path')) {
             $imagePath = $request->file('qualifelec_logo_path')->storeAs(
                 'images', 
-                Auth::id() . '.' . $request->file('qualifelec_logo_path')->getClientOriginalExtension(),
+                Auth::id() . '.qualifelec_logo' . $request->file('qualifelec_logo_path')->getClientOriginalExtension(),
                 'public');
 
             $profile->qualifelec_logo_path = $imagePath;

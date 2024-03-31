@@ -84,6 +84,8 @@ Route::middleware('auth')->prefix('estimate')->group(function() {
     Route::get('/edit/{estimate}', [EstimateController::class, 'edit'])->name('estimate.edit');
     Route::post('/edit/{estimate}', [EstimateController::class, 'update'])->name('estimate.update');
 
+    Route::get('/destroy/{estimate}', [EstimateController::class, 'destroy'])->name('estimate.destroy');
+
     // LOCATION OF WORK
     Route::prefix('/{estimate}/location_of_work')->group(function() {
         Route::get('/index', [LocationOfWorkController::class, 'index'])->name('location_of_work.index');

@@ -84,8 +84,8 @@
 <div class="div-a between">
     <p>Acompte demandé : <span class="bold">{{ $estimate->advance }}€</span></p>
     <div class="div-a end" style="gap: 10px">
-        <a href="{{ route('estimate.estimate_pdf', ['estimate' => $estimate]) }}">Devis</a>
-        <a href="{{ route('estimate.invoice_pdf', ['estimate' => $estimate]) }}">Facture</a>
+        <a href="{{ route('estimate.estimate_pdf', ['estimate' => $estimate]) }}">Éditer devis</a>
+        <a href="{{ route('estimate.invoice_pdf', ['estimate' => $estimate]) }}">Éditer facture</a>
     </div>
 </div>
 

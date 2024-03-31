@@ -49,6 +49,14 @@
     </div>
 </form>
 
+@if (session('success'))
+<div class="success">{{ session('success') }}</div>
+@endif
+
+@if (session('failed'))
+<div class="failed">{{ session('failed') }}</div>
+@endif
+
 <table>
     <thead>
         <tr>

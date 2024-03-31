@@ -5,7 +5,10 @@
 @section('content')
 
 <div class="title">
-    <h1>Finalisez mon devis</h1>
+    <h1>Modifiez mon devis</h1>
+    <div class="link" style="background-color: red">
+        <a href="{{ route('estimate.destroy', ['estimate' => $estimate]) }}" style="color: white"><i class="far fa-trash-alt" style="color: white"></i>Supprimez devis</a>
+    </div>
     <div class="link">
         <a href="{{ route('location_of_work.create', ['estimate' => $estimate]) }}"><i class="fas fa-plus"></i>Ajoutez des travaux sur ce devis</a>
     </div>

@@ -16,9 +16,7 @@ class CustomerController extends Controller
      */
     public function index(): View
     {
-        $customers = Customer::whereHas('estimates', function($query) {
-                                    $query->where('user_id', Auth::id());
-                                })->orderBy('lastname')
+        $customers = Customer::orderBy('lastname')
                                 ->filter(request(['search_customer']))
                                 ->get();
 

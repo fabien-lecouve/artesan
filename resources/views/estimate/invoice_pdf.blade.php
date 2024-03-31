@@ -169,7 +169,7 @@
                 </div>
                 <div id="reference">
                     <div>{{ $estimate->reference }}</div>
-                    <div>{{ $estimate->created_at->format('d/m/Y') }}</div>
+                    <div>{{ date('d/m/Y') }}</div>
                 </div>
             </div>
         </div>

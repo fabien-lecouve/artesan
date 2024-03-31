@@ -52,8 +52,11 @@ class Estimate extends Model
 
     public function getReference()
     {
-        $reference = strtoupper(substr($this->customer->lastname, 0, 3));
-
-        return $reference .= '00' . count($this->customer->estimates);
+        if( $this->reference !== null ){
+            return $this->reference;
+        } else {
+            $reference = strtoupper(substr($this->customer->lastname, 0, 3));
+            return $reference .= '00' . count($this->customer->estimates);
+        }
     }
 }
