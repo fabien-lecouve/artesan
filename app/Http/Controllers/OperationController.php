@@ -51,26 +51,19 @@ class OperationController extends Controller
 
             if(count($location_of_work->operations) > 0 ){
                 foreach($location_of_work->operations as $ope){
-                    if($ope->material_id == (int) $ids[0]){
-                        $ope->quantity += (int) $ids[1];
-                        $ope->save();
-                    }
+                    $ope->delete();
                 }
-            } else {
-                $operation = new Operation();
-                $operation->location_of_work_id = $location_of_work->id;
-                $operation->material_id = (int) $ids[0];
-                $operation->quantity = (int) $ids[1];
-                $operation->save();
             }
+            $operation = new Operation();
+            $operation->location_of_work_id = $location_of_work->id;
+            $operation->material_id = (int) $ids[0];
+            $operation->quantity = (int) $ids[1];
+            $operation->save();
         }
-        if($location_of_work->subtotal != 0) {
-            $location_of_work->subtotal += $request->subtotal;
-            $location_of_work->supplies += $request->supplies;
-        } else {
-            $location_of_work->subtotal = $request->subtotal;
-            $location_of_work->supplies = $request->supplies;
-        }
+        
+        $location_of_work->subtotal = $request->subtotal;
+        $location_of_work->supplies = $request->supplies;
+        
         $location_of_work->warranty = $request->warranty;
         $location_of_work->save();
 

@@ -96,6 +96,8 @@ Route::middleware('auth')->prefix('estimate')->group(function() {
         Route::get('/edit/{location_of_work}', [LocationOfWorkController::class, 'edit'])->name('location_of_work.edit');
         Route::post('/edit/{location_of_work}', [LocationOfWorkController::class, 'update'])->name('location_of_work.update');
 
+        Route::get('/destroy/{location_of_work}', [LocationOfWorkController::class, 'destroy'])->name('location_of_work.destroy');
+
         // OPERATION
         Route::prefix('/{location_of_work}/operation')->group(function() {
             Route::get('/create', [OperationController::class, 'create'])->name('operation.create');

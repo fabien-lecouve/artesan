@@ -10,7 +10,7 @@
 
 <div class="estimate-construction">
 
-    <div class="w50">
+    <div class="w75">
         <div id="room-row">
         
             <div>
@@ -122,55 +122,88 @@
 
 <script>
     // VARIABLES
-    let works = document.getElementById('div-works');
     let selectedMaterial = document.getElementById('select-materials');
     let selectedQuantity = document.getElementById('input-quantity');
-    let addRoomBtn = document.getElementById('add-room-btn');
-    let furnituresCost = document.getElementById('furnitures_cost');
-    let inputSupplies = document.getElementById('supplies');
-    let worksCost = document.getElementById('subtotal');
-
+    let works = document.getElementById('div-works');
+    let selectedOperations = {};
     let furnitures = [];
     let workforces = [];
 
     // FUNCTIONS
-    function addRow(){
+    function addNewOperation(materialId, quantity) {
+        quantity = parseInt(quantity);
+
+        if (selectedOperations.hasOwnProperty(materialId)) {
+            selectedOperations[materialId] += quantity;
+        } else {
+            selectedOperations[materialId] = quantity;
+        }
+        displayAllOperations();
+    }
+
+    function loadExistingOperations() {
+        let operations = {!! $location_of_work->operations !!};
+
+        operations.forEach(operation => {
+            addNewOperation(operation.material_id, operation.quantity);
+        });
+    }
+
+    function displayAllOperations() {
+        let materials = {!! $materials !!};
+        works.innerText = '';
+        furnitures = [];
+        workforces = [];
+
+
+        for (let prop in selectedOperations) {
+            materials.forEach(material => {
+                if (parseInt(prop) === material.id) {
+                    addRow(material.name, material.id, selectedOperations[prop], material.unit_price, material.workforce_price)
+                }
+            });
+        }
+    }
+
+    function addRow(materialName, materialId, quantity, materialUnitPrice, materialWorkforcePrice){
         let newRow = document.createElement("div");
         newRow.classList.add("selected-row");
+        newRow.dataset.id = materialId;
         
         works.appendChild(newRow);
 
         // MATERIAL
         let materialDiv = document.createElement("div");
-        materialDiv.innerText = "Fourniture : " + selectedMaterial.options[selectedMaterial.selectedIndex].text;
-        let materialId = selectedMaterial.options[selectedMaterial.selectedIndex].value;
+        materialDiv.innerText = "Fourniture : " + materialName;
 
         // QUANTITY
         let quantityDiv = document.createElement("div");
-        quantityDiv.innerText = "Quantité : " + selectedQuantity.value;
-        let quantityNbr = selectedQuantity.value;
+        quantityDiv.innerText = "Quantité : " + quantity;
 
         // FURNITURES INPUT
         let furnitureCostInput = createFurnitureInput();
-        furnitureCostInput.value = selectedMaterial.options[selectedMaterial.selectedIndex].dataset.unit_price * quantityNbr;
+        furnitureCostInput.value = materialUnitPrice * quantity;
 
         // HIDDEN INPUT
         let input = document.createElement("input");
         input.setAttribute("type", "hidden");
-        input.setAttribute("name", selectedMaterial.options[selectedMaterial.selectedIndex].value+'_'+selectedQuantity.value);
-        input.value = materialId + '_' + quantityNbr;
+        input.setAttribute("name", materialId+'_'+quantity);
+        input.value = materialId + '_' + quantity;
 
         newRow.append(materialDiv, quantityDiv, furnitureCostInput, input, createDeleteBtn());
 
-        furnitures.push(selectedMaterial.options[selectedMaterial.selectedIndex].dataset.unit_price * quantityNbr);
-        workforces.push(selectedMaterial.options[selectedMaterial.selectedIndex].dataset.workforce_price * quantityNbr);
+        furnitures.push(materialUnitPrice * quantity);
+        workforces.push(materialWorkforcePrice * quantity);
 
         calculate();
         selectedQuantity.value = 1;
-        console.log(furnitures);
     }
 
     function calculate() {
+        let furnituresCost = document.getElementById('furnitures_cost');
+        let inputSupplies = document.getElementById('supplies');
+        let worksCost = document.getElementById('subtotal');
+        
         let sumFurnitures = 0;
         let sumWorkforces = 0;
 
@@ -220,7 +253,6 @@
         let div = e.target.closest("div.selected-row");
         let index = getIndex(div);
         furnitures[index] = parseInt(e.target.value);
-        console.log(furnitures);
         calculate();
     }
 
@@ -238,6 +270,7 @@
         }
         
         div.remove();
+        delete selectedOperations[div.dataset.id];
         calculate();
     }
 
@@ -247,10 +280,154 @@
         return Array.prototype.indexOf.call(parent.children, child);
     }
 
-
     // CODE
-    addRoomBtn.addEventListener('click', addRow);
+    loadExistingOperations();
+    document.getElementById('add-room-btn').addEventListener('click', function () {
+        addNewOperation(selectedMaterial.options[selectedMaterial.selectedIndex].value, selectedQuantity.value)
+    });
     calculate();
+
+    // VARIABLES
+    // let works = document.getElementById('div-works');
+    // let selectedMaterial = document.getElementById('select-materials');
+    // let selectedQuantity = document.getElementById('input-quantity');
+    // let addRoomBtn = document.getElementById('add-room-btn');
+    // let furnituresCost = document.getElementById('furnitures_cost');
+    // let inputSupplies = document.getElementById('supplies');
+    // let worksCost = document.getElementById('subtotal');
+    // let operations = {!! $location_of_work->operations !!};
+    // let materials = {!! $materials !!};
+    // let selectedOperations = [];
+
+    // console.log(operations.length);
+    // console.log(typeof materials);
+
+    // let furnitures = [];
+    // let workforces = [];
+
+    // // FUNCTIONS
+    // // todo réarranger cette partie en stockant dans un array uniquement id et quantity et boucler dessus pour vérifier si ça n'existe pas encore
+    // function addRow(materialName, materialId, quantity, materialUnitPrice, materialWorkforcePrice){
+    //     let newRow = document.createElement("div");
+    //     newRow.classList.add("selected-row");
+        
+    //     works.appendChild(newRow);
+
+    //     // MATERIAL
+    //     let materialDiv = document.createElement("div");
+    //     materialDiv.innerText = "Fourniture : " + materialName;
+
+    //     // QUANTITY
+    //     let quantityDiv = document.createElement("div");
+    //     quantityDiv.innerText = "Quantité : " + quantity;
+
+    //     // FURNITURES INPUT
+    //     let furnitureCostInput = createFurnitureInput();
+    //     furnitureCostInput.value = materialUnitPrice * quantity;
+
+    //     // HIDDEN INPUT
+    //     let input = document.createElement("input");
+    //     input.setAttribute("type", "hidden");
+    //     input.setAttribute("name", materialId+'_'+quantity);
+    //     input.value = materialId + '_' + quantity;
+
+    //     newRow.append(materialDiv, quantityDiv, furnitureCostInput, input, createDeleteBtn());
+
+    //     furnitures.push(materialUnitPrice * quantity);
+    //     workforces.push(materialWorkforcePrice * quantity);
+
+    //     calculate();
+    //     selectedQuantity.value = 1;
+    // }
+
+
+    // function calculate() {
+    //     let furnituresCost = document.getElementById('furnitures_cost');
+    //     let inputSupplies = document.getElementById('supplies');
+    //     let worksCost = document.getElementById('subtotal');
+        
+    //     let sumFurnitures = 0;
+    //     let sumWorkforces = 0;
+
+    //     for( let i=0; i < furnitures.length; i++)
+    //     {
+    //         sumFurnitures += furnitures[i];
+    //     }
+    //     for( let i=0; i < workforces.length; i++)
+    //     {
+    //         sumWorkforces += workforces[i];
+    //     }
+
+    //     furnituresCost.innerText = sumFurnitures;
+    //     inputSupplies.value = sumFurnitures;
+    //     worksCost.value = sumFurnitures + sumWorkforces;
+    // }
+
+    // function createDeleteBtn(){
+    //     let buttonDiv = document.createElement("div");
+    //     let deleteButton = document.createElement("button");
+    //     let i = document.createElement("i");
+
+    //     deleteButton.setAttribute("type", "button");
+    //     i.classList.add("fas", "fa-trash");
+
+    //     deleteButton.appendChild(i)
+    //     buttonDiv.appendChild(deleteButton);
+
+    //     deleteButton.addEventListener('click', deleteRow);
+
+    //     return buttonDiv;
+    // }
+
+    // function createFurnitureInput() {
+
+    //     let input = document.createElement("input");
+    //     input.setAttribute("type", "number");
+    //     input.classList.add('input-operations');
+
+    //     input.addEventListener('change', updateFurnitureCost);
+
+    //     return input;
+    // }
+
+    // function updateFurnitureCost(e){
+
+    //     let div = e.target.closest("div.selected-row");
+    //     let index = getIndex(div);
+    //     furnitures[index] = parseInt(e.target.value);
+    //     calculate();
+    // }
+
+    // function deleteRow(e){
+
+    //     let div = e.target.closest("div.selected-row");
+    //     let index = getIndex(div);
+
+    //     if (index === 0) {
+    //         furnitures.shift();
+    //         workforces.shift();
+    //     } else {
+    //         furnitures.splice(index, index);
+    //         workforces.splice(index, index);
+    //     }
+        
+    //     div.remove();
+    //     calculate();
+    // }
+
+    // function getIndex(child){
+        
+    //     let parent = child.parentNode;
+    //     return Array.prototype.indexOf.call(parent.children, child);
+    // }
+
+
+    // // CODE
+    // loadExistingOperations();
+    // addRoomBtn.addEventListener('click', function () {
+    //     addRow(selectedMaterial.options[selectedMaterial.selectedIndex].text, selectedMaterial.options[selectedMaterial.selectedIndex].value, selectedQuantity.value, selectedMaterial.options[selectedMaterial.selectedIndex].dataset.unit_price, selectedMaterial.options[selectedMaterial.selectedIndex].dataset.workforce_price)
+    // });
+    // calculate();
 
 </script>
 

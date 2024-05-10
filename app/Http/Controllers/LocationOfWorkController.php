@@ -10,6 +10,7 @@ use App\Models\Estimate;
 use App\Models\Room;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class LocationOfWorkController extends Controller
 {
@@ -82,6 +83,11 @@ class LocationOfWorkController extends Controller
      */
     public function update(UpdateLocationOfWorkRequest $request, Estimate $estimate, LocationOfWork $location_of_work)
     {
+        if(count($location_of_work->descriptions) > 0 ){
+            foreach($location_of_work->descriptions as $description){
+                $description->delete();
+            }
+        }
         foreach($request->descriptions as $d){
             if(filled($d)){
                 $description = New DescriptionLocation();
@@ -101,8 +107,34 @@ class LocationOfWorkController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LocationOfWork $locationOfWork)
+    public function destroy(Estimate $estimate, LocationOfWork $locationOfWork)
     {
-        //
+        if (count($estimate->locationOfWorks) === 1) {
+            return redirect()->route('estimate.destroy', ['estimate' => $estimate]);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($locationOfWork->operations as $operation) {
+                $operation->delete();
+            }
+            foreach ($locationOfWork->descriptions as $description) {
+                $description->delete();
+            }
+            $locationOfWork->delete();
+
+            DB::commit();
+
+            $key = 'success';
+            $message = 'La pièce '.$locationOfWork->room->name.' a bien été supprimé du devis';
+ 
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            $key = 'failed';
+            $message = $th->getMessage();
+        }
+        return redirect()->route('estimate.edit', ['estimate' => $estimate])->with($key, $message);
     }
 }

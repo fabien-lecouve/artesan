@@ -14,11 +14,20 @@
     </div>
 </div>
 
+@if (session('success'))
+<div class="success">{{ session('success') }}</div>
+@endif
+
+@if (session('failed'))
+<div class="failed">{{ session('failed') }}</div>
+@endif
+
 <table>
     <thead>
         <tr>
             <th>Désignation</th>
             <th class="w25" colspan="2">Sous-total</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -38,6 +47,11 @@
             </td>
             <td class="center bold ft12" colspan="2">
                 {{ $location->subtotal }}€
+            </td>
+            <td>
+                <a href="{{ route('location_of_work.destroy', ['estimate' => $location->estimate, 'location_of_work' => $location]) }}">
+                    <i class="far fa-trash-alt" style="color: red"></i>
+                </a>
             </td>
         </tr>
 
